@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from review-bot!")
+"""AI code-review bot for GitLab merge requests."""
