@@ -1,4 +1,8 @@
 import argparse
+import sys
+from pathlib import Path
+
+from review_bot.llm_client import review
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="AI code review for GitLab Mrs")
@@ -9,7 +13,15 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    print(f"diff_file={args.diff_file}, dry_run={args.dry_run}")
+    if not args.diff_file:
+        sys.exit("Only --diff-file is supported for now (GitLab mode comes later).")
+
+    diff = Path(args.diff_file).read_text(encoding="utf-8")
+    if not diff.strip():
+        print("Diff is empty, nothing to review.")
+        return
+
+    print(review(diff))
     
 if __name__ == "__main__":
     main()
