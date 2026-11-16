@@ -1,0 +1,15 @@
+# Secrets: never send these to the build
+.env
+
+# Local environment and caches
+.venv/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+
+# Version control
+.git/
+
+# Not needed at runtime
+tests/
+**/*.diff
