@@ -1,5 +1,7 @@
 import fnmatch
 import posixpath
+from dataclasses import dataclass
+
 
 DIFF_HEADER = "diff --git "
 IGNORED_PATTERNS = [
@@ -60,7 +62,25 @@ def truncate(text: str, max_chars: int = MAX_DIFF_CHARS) -> tuple[str, bool]:
     return text[: cut + 1], True
 
 
-def prepare_diff(diff: str) -> tuple[str, bool]:
-    """Drop ignored files, then truncate. Returns (diff, was_truncated)."""
-    kept = [chunk for path, chunk in split_by_file(diff) if not is_ignored(path)]
-    return truncate("".join(kept))
+@dataclass
+class PreparedDiff:
+    """A diff ready for the LLM, plus what was left out of it."""
+
+    text: str
+    skipped_files: list[str]
+    truncated: bool
+
+
+def prepare_diff(diff: str) -> PreparedDiff:
+    """Drop ignored files, then truncate."""
+    kept = []
+    skipped = []
+    for path, chunk in split_by_file(diff):
+        if is_ignored(path):
+            skipped.append(path)
+        else:
+            kept.append(chunk)
+
+    text, truncated = truncate("".join(kept))
+    return PreparedDiff(text=text, skipped_files=skipped, truncated=truncated)
+

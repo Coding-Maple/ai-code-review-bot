@@ -39,4 +39,8 @@ def test_prepare_diff_drops_ignored_files():
         "diff --git a/uv.lock b/uv.lock\n+lots of lock data\n"
         "diff --git a/app.py b/app.py\n+print('hi')\n"
     )
-    assert prepare_diff(diff) == ("diff --git a/app.py b/app.py\n+print('hi')\n", False)
+    prepared = prepare_diff(diff)
+    assert prepared.text == "diff --git a/app.py b/app.py\n+print('hi')\n"
+    assert prepared.skipped_files == ["uv.lock"]
+    assert prepared.truncated is False
+
